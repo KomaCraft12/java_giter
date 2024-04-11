@@ -6,15 +6,80 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 import com.formdev.flatlaf.intellijthemes.FlatCobalt2IJTheme;
 import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatArcDarkIJTheme;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import java.io.FileReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 public class Ablak extends JFrame {
 
+    public String repo_name;
+    public String repo_url;
+
+
+    public void register(){
+
+        String fileName = "repositories.json"; // JSON fájl elérési útvonala és neve
+        JSONObject jsonObject = new JSONObject(); // JSON objektum inicializálása
+
+        // JSON parser inicializálása
+        JSONParser parser = new JSONParser();
+
+        try (FileReader reader = new FileReader(fileName)) {
+            // JSON fájl beolvasása és parse-olása
+            jsonObject = (JSONObject) parser.parse(reader);
+
+            // Az új modpack hozzáadása
+            JSONObject repo = new JSONObject();
+            repo.put("repo", repo_url);
+
+            jsonObject.put(repo_name, repo); // Új modpack hozzáadása a jsonObject-hez
+
+            // Fájl tartalmának frissítése az új JSON objektummal
+            try (FileWriter file = new FileWriter(fileName)) {
+                // Gson inicializálása a szép formázás céljából
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                String prettyJsonString = gson.toJson(jsonObject); // Szépen formázott JSON sztring generálása
+                file.write(prettyJsonString); // Szépen formázott JSON sztring kiírása a fájlba
+            } catch (IOException e) {
+                System.err.println("Hiba történt a fájl írása során: " + e.getMessage());
+            }
+
+        } catch (IOException | ParseException e) {
+            System.err.println("Hiba történt a fájl olvasása során: " + e.getMessage());
+        }
+
+
+    }
+
+    public static String getRepoName(String url) {
+        try {
+            URI uri = new URI(url);
+            String[] segments = uri.getPath().split("/");
+            if (segments.length >= 2) {
+                return segments[segments.length - 1].replaceAll("\\.git$", "");
+            } else {
+                return "Nem található repository név a megadott URL-ben.";
+            }
+        } catch (URISyntaxException e) {
+            return "Hibás URL formátum: " + e.getMessage();
+        }
+    }
 
     public void GitClone(String url, String path){
+
+        repo_name = getRepoName(url);
+        repo_url = url;
 
         String repositoryUrl = url;
         String destinationFolder = path;
@@ -35,6 +100,7 @@ public class Ablak extends JFrame {
             // Ellenőrizd, hogy a parancs sikeresen futott-e
             if (exitCode == 0) {
                 System.out.println("A git clone parancs sikeresen lefutott.");
+                register();
             } else {
                 System.err.println("Hiba történt a git clone parancs futtatása közben.");
             }
@@ -51,8 +117,9 @@ public class Ablak extends JFrame {
             JFrame frame = new JFrame("Giter - CLONE");
             JPanel panel = new JPanel();
             panel.setLayout(new FlowLayout());
-            JLabel label = new JLabel("Új repository");
-            label.setPreferredSize(new Dimension(380,18));
+            JLabel label = new JLabel("Új repository", SwingConstants.CENTER);
+            label.setPreferredSize(new Dimension(380,25));
+            label.setFont(new Font("Arial",Font.BOLD,18));
 
             JButton path_btn = new JButton();
             path_btn.setText("Utvonal");
