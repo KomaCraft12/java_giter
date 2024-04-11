@@ -1,5 +1,6 @@
 {
   "MinecraftLauncher": {
-    "repo": "https://github.com/KomaCraft12/MinecraftLauncher.git"
+    "repo": "https://github.com/KomaCraft12/MinecraftLauncher.git",
+    "local_dir": "C:\\Users\\Diak\\Desktop\\GITTEST\\MinecraftLauncher"
   }
 }

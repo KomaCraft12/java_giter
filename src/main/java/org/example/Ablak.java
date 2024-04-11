@@ -25,6 +25,7 @@ public class Ablak extends JFrame {
 
     public String repo_name;
     public String repo_url;
+    public String repo_local_dir;
 
 
     public void register(){
@@ -42,6 +43,7 @@ public class Ablak extends JFrame {
             // Az új modpack hozzáadása
             JSONObject repo = new JSONObject();
             repo.put("repo", repo_url);
+            repo.put("local_dir",repo_local_dir);
 
             jsonObject.put(repo_name, repo); // Új modpack hozzáadása a jsonObject-hez
 
@@ -80,9 +82,10 @@ public class Ablak extends JFrame {
 
         repo_name = getRepoName(url);
         repo_url = url;
+        repo_local_dir = path + "\\" + repo_name;
 
         String repositoryUrl = url;
-        String destinationFolder = path;
+        String destinationFolder = path + "\\" + repo_name;
 
         // Parancs létrehozása
         String[] command = {"git", "clone", repositoryUrl, destinationFolder};
